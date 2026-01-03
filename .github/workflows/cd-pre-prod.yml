@@ -1,0 +1,62 @@
+name: CD - Angular Firebase Staging
+
+on:
+  push:
+    branches:
+      - staging
+  pull_request:
+    branches:
+      - staging
+
+jobs:
+  ci:
+    name: CI Angular (staging)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint Angular
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build Angular
+        working-directory: frontend
+        run: npm run build -- --configuration production
+
+  cd:
+    name: Deploy Firebase Staging
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Instalar dependencias
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Angular producción
+        working-directory: frontend
+        run: npm run build -- --configuration production
+
+      - name: Instalar Firebase CLI
+        run: npm install -g firebase-tools
+
+      - name: Deploy Firebase Hosting y Data Connect (Staging)
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN_STAGING }}
+        run: firebase deploy --only hosting,dataconnect --project mi-cafeteria-staging

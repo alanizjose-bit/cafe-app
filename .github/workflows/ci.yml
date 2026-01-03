@@ -1,0 +1,36 @@
+name: CI - Angular (Develop)
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  ci:
+    name: CI Angular
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Instalar dependencias
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint Angular
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Build Angular
+        working-directory: frontend
+        run: npm run build -- --configuration production
