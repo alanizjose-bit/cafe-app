@@ -59,4 +59,4 @@ jobs:
       - name: Deploy Firebase Hosting y Data Connect (Producción)
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN_PROD }}
-        run: firebase deploy --only hosting,dataconnect --project mi-cafeteria-prod
+        run: firebase deploy --only hosting,dataconnect --project cafe-app

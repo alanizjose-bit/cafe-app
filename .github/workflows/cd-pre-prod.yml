@@ -54,7 +54,11 @@ jobs:
       - name: Instalar Firebase CLI
         run: bun add -g firebase-tools
 
-      - name: Deploy Firebase Hosting y Data Connect (Staging)
+      - name: Deploy Firebase Pre-Prod
         env:
-          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN_STAGING }}
-        run: firebase deploy --only hosting,dataconnect --project mi-cafeteria-staging
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN_PREPROD }}
+        run: |
+          firebase deploy \
+            --only hosting,dataconnect \
+            --project cafe-app\
+            --non-interactive
