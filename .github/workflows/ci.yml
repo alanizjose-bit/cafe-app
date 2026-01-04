@@ -31,7 +31,6 @@ jobs:
             bun-deps-
 
       - name: Instalar dependencias
-        working-directory: frontend
         run: bun install
 
       - name: Lint Angular
