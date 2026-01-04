@@ -1,12 +1,13 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyBWBEg81NTr7MUUKmfsSmht98FGzm9bK20",
-    authDomain: "cafe-pre-prod.firebaseapp.com",
-    projectId: "cafe-pre-prod",
-    storageBucket: "cafe-pre-prod.firebasestorage.app",
-    messagingSenderId: "67248906368",
-    appId: "1:67248906368:web:833904fa41198059768665",
-    measurementId: "G-CB09S8FKS4"
+    apiKey: 'AIzaSyDoTD2PCqvCWUNKeiFr5RB-gmRf2CMwTnM',
+    authDomain: 'cafe-app-776ee.firebaseapp.com',
+    databaseURL: 'https://cafe-app-776ee-default-rtdb.firebaseio.com',
+    projectId: 'cafe-app-776ee',
+    storageBucket: 'cafe-app-776ee.firebasestorage.app',
+    messagingSenderId: '601659291354',
+    appId: '1:601659291354:web:56284432271c51b5d957e3',
+    measurementId: 'G-8KY70GT8HY',
   },
 };
