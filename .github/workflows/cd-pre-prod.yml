@@ -23,15 +23,12 @@ jobs:
           bun-version: latest
 
       - name: Instalar dependencias
-        working-directory: frontend
         run: bun install --frozen-lockfile
 
       - name: Lint Angular
-        working-directory: frontend
         run: bun run lint
 
       - name: Build Angular
-        working-directory: frontend
         run: bun run build --configuration production
 
   cd:
@@ -49,11 +46,9 @@ jobs:
           bun-version: latest
 
       - name: Instalar dependencias
-        working-directory: frontend
         run: bun install --frozen-lockfile
 
       - name: Build Angular producción
-        working-directory: frontend
         run: bun run build --configuration production
 
       - name: Instalar Firebase CLI
