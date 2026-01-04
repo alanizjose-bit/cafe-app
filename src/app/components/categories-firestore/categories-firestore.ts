@@ -1,9 +1,10 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subscription } from 'rxjs';
-import { CategoryFirestoreService } from '../../services/category-firestore/category-firestore'; // ← IMPORTANTE
-import { Category, CategoryFormData } from '../../models/category';
+import { toSignal } from '@angular/core/rxjs-interop';
+
+import { CategoryFirestoreService } from '../../services/category-firestore/category-firestore';
+import { Category } from '../../models/category';
 
 @Component({
   selector: 'app-categories-firestore',
@@ -12,101 +13,100 @@ import { Category, CategoryFormData } from '../../models/category';
   templateUrl: './categories-firestore.html',
   styleUrl: './categories-firestore.css',
 })
-export class CategoriesFirestoreComponent implements OnInit, OnDestroy {
-  private categoryService = inject(CategoryFirestoreService); // ← Usa el servicio de Firestore
-  private subscription?: Subscription;
+export class CategoriesFirestoreComponent {
+  private categoryService = inject(CategoryFirestoreService);
 
-  categories: Category[] = [];
-  newCategoryName = '';
-  editingCategory: Category | null = null;
-  editingName = '';
-  isLoading = false;
-  errorMessage = '';
+  // 🔹 Firestore stream → Signal
+  categories = toSignal(
+    this.categoryService.listenCategories(),
+    { initialValue: [] as Category[] }
+  );
 
-  ngOnInit(): void {
-    this.loadCategories();
-  }
+  // 🔹 Estado UI
+  newCategoryName = signal('');
+  editingCategory = signal<Category | null>(null);
+  editingName = signal('');
+  isLoading = signal(false);
+  errorMessage = signal('');
 
-  ngOnDestroy(): void {
-    this.subscription?.unsubscribe();
-  }
+  // 🔹 Computed
+  totalCategories = computed(() => this.categories().length);
 
-  private loadCategories(): void {
-    this.subscription = this.categoryService.listenCategories().subscribe({
-      next: (categories) => (this.categories = categories),
-      error: (error) => this.handleError('Error al cargar categorías', error),
-    });
-  }
-
+  // ➕ Crear
   async addCategory(): Promise<void> {
-    if (!this.validateInput(this.newCategoryName)) return;
+    const name = this.newCategoryName().trim();
+    if (!this.validateInput(name)) return;
 
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
     try {
-      await this.categoryService.createCategory({ name: this.newCategoryName.trim() });
-      this.newCategoryName = '';
+      await this.categoryService.createCategory({ name });
+      this.newCategoryName.set('');
     } catch (error) {
       this.handleError('Error al crear categoría', error);
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 
+  // ✏️ Editar
   startEdit(category: Category): void {
-    this.editingCategory = category;
-    this.editingName = category.name;
+    this.editingCategory.set(category);
+    this.editingName.set(category.name);
   }
 
   cancelEdit(): void {
-    this.editingCategory = null;
-    this.editingName = '';
+    this.editingCategory.set(null);
+    this.editingName.set('');
   }
 
   async updateCategory(): Promise<void> {
-    if (!this.editingCategory?.id || !this.validateInput(this.editingName)) return;
+    const category = this.editingCategory();
+    const name = this.editingName().trim();
 
-    this.isLoading = true;
-    this.errorMessage = '';
+    if (!category?.id || !this.validateInput(name)) return;
+
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
     try {
-      await this.categoryService.updateCategory(this.editingCategory.id, {
-        name: this.editingName.trim(),
-      });
+      await this.categoryService.updateCategory(category.id, { name });
       this.cancelEdit();
     } catch (error) {
       this.handleError('Error al actualizar categoría', error);
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 
-  async deleteCategory(id: string | undefined): Promise<void> {
+  // 🗑️ Eliminar
+  async deleteCategory(id?: string): Promise<void> {
     if (!id || !confirm('¿Estás seguro de eliminar esta categoría?')) return;
 
-    this.isLoading = true;
-    this.errorMessage = '';
+    this.isLoading.set(true);
+    this.errorMessage.set('');
 
     try {
       await this.categoryService.deleteCategory(id);
     } catch (error) {
       this.handleError('Error al eliminar categoría', error);
     } finally {
-      this.isLoading = false;
+      this.isLoading.set(false);
     }
   }
 
+  // 🔍 Validación
   private validateInput(name: string): boolean {
     if (name.trim().length < 3) {
-      this.errorMessage = 'El nombre debe tener al menos 3 caracteres';
+      this.errorMessage.set('El nombre debe tener al menos 3 caracteres');
       return false;
     }
     return true;
   }
 
-  private handleError(message: string, error: any): void {
+  private handleError(message: string, error: unknown): void {
     console.error(message, error);
-    this.errorMessage = message;
+    this.errorMessage.set(message);
   }
 }

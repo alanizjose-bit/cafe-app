@@ -4,27 +4,31 @@
   <!-- Formulario para agregar nueva categoría -->
   <div class="add-section">
     <h2>Agregar Nueva Categoría</h2>
+
     <div class="form-group">
       <input
         type="text"
-        [(ngModel)]="newCategoryName"
+        [ngModel]="newCategoryName()"
+        (ngModelChange)="newCategoryName.set($event)"
         placeholder="Nombre de la categoría"
         (keyup.enter)="addCategory()"
-        [disabled]="isLoading"
+        [disabled]="isLoading()"
       />
-      <button (click)="addCategory()" [disabled]="isLoading || !newCategoryName.trim()">
-        {{ isLoading ? 'Guardando...' : 'Agregar' }}
+
+      <button (click)="addCategory()" [disabled]="isLoading() || !newCategoryName().trim()">
+        {{ isLoading() ? 'Guardando...' : 'Agregar' }}
       </button>
     </div>
   </div>
 
   <!-- Lista de categorías -->
   <div class="list-section">
-    <h2>Lista de Categorías ({{ categories.length }})</h2>
+    <h2>Lista de Categorías ({{ categories().length }})</h2>
 
-    <div *ngIf="categories.length === 0" class="empty-message">No hay categorías registradas</div>
-
-    <table *ngIf="categories.length > 0">
+    @if (categories().length === 0) {
+    <div class="empty-message">No hay categorías registradas</div>
+    } @if (categories().length > 0) {
+    <table>
       <thead>
         <tr>
           <th>ID</th>
@@ -32,45 +36,57 @@
           <th>Acciones</th>
         </tr>
       </thead>
+
       <tbody>
-        <tr *ngFor="let category of categories">
+        @for (category of categories(); track category.id) {
+        <tr>
           <td>{{ category.id }}</td>
+
           <td>
-            <!-- Modo de edición -->
-            <span *ngIf="editingCategory?.id === category.id">
-              <input type="text" [(ngModel)]="editingName" (keyup.enter)="updateCategory()" />
-            </span>
-            <!-- Modo normal -->
-            <span *ngIf="editingCategory?.id !== category.id">
-              {{ category.name }}
-            </span>
+            @if (editingCategory()?.id === category.id) {
+            <!-- Modo edición -->
+            <input
+              type="text"
+              [ngModel]="editingName()"
+              (ngModelChange)="editingName.set($event)"
+              (keyup.enter)="updateCategory()"
+            />
+            } @else {
+            {{ category.name }}
+            }
           </td>
+
           <td>
-            <!-- Botones en modo edición -->
-            <div *ngIf="editingCategory?.id === category.id" class="action-buttons">
-              <button class="btn-save" (click)="updateCategory()" [disabled]="isLoading">
+            @if (editingCategory()?.id === category.id) {
+            <div class="action-buttons">
+              <button class="btn-save" (click)="updateCategory()" [disabled]="isLoading()">
                 Guardar
               </button>
-              <button class="btn-cancel" (click)="cancelEdit()" [disabled]="isLoading">
+
+              <button class="btn-cancel" (click)="cancelEdit()" [disabled]="isLoading()">
                 Cancelar
               </button>
             </div>
-            <!-- Botones en modo normal -->
-            <div *ngIf="editingCategory?.id !== category.id" class="action-buttons">
-              <button class="btn-edit" (click)="startEdit(category)" [disabled]="isLoading">
+            } @else {
+            <div class="action-buttons">
+              <button class="btn-edit" (click)="startEdit(category)" [disabled]="isLoading()">
                 Editar
               </button>
+
               <button
                 class="btn-delete"
                 (click)="deleteCategory(category.id)"
-                [disabled]="isLoading"
+                [disabled]="isLoading()"
               >
                 Eliminar
               </button>
             </div>
+            }
           </td>
         </tr>
+        }
       </tbody>
     </table>
+    }
   </div>
 </div>

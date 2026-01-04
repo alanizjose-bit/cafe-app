@@ -8,14 +8,14 @@ export class FirebaseService {
   private db = inject(Database);
 
   // Insertar datos con ID automático
-  agregarDato(ruta: string, datos: any) {
+  agregarDato(ruta: string, datos: unknown) {
     const dbRef = ref(this.db, ruta);
     const nuevoRef = push(dbRef);
     return set(nuevoRef, datos);
   }
 
   // Insertar/actualizar datos con ID específico
-  guardarDato(ruta: string, datos: any) {
+  guardarDato(ruta: string, datos: unknown) {
     const dbRef = ref(this.db, ruta);
     return set(dbRef, datos);
   }
@@ -28,7 +28,7 @@ export class FirebaseService {
   }
 
   // Escuchar cambios en tiempo real
-  escucharDatos(ruta: string, callback: (data: any) => void) {
+  escucharDatos(ruta: string, callback: (data: unknown) => void) {
     const dbRef = ref(this.db, ruta);
     return onValue(dbRef, (snapshot) => {
       callback(snapshot.val());
