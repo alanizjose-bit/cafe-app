@@ -60,5 +60,5 @@ jobs:
         run: |
           firebase deploy \
             --only hosting,dataconnect \
-            --project cafe-app\
+            --project cafe-pre-prod \
             --non-interactive

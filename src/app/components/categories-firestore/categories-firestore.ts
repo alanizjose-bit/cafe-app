@@ -16,23 +16,18 @@ import { Category } from '../../models/category';
 export class CategoriesFirestoreComponent {
   private categoryService = inject(CategoryFirestoreService);
 
-  // 🔹 Firestore stream → Signal
-  categories = toSignal(
-    this.categoryService.listenCategories(),
-    { initialValue: [] as Category[] }
-  );
+  categories = toSignal(this.categoryService.listenCategories(), {
+    initialValue: [] as Category[],
+  });
 
-  // 🔹 Estado UI
   newCategoryName = signal('');
   editingCategory = signal<Category | null>(null);
   editingName = signal('');
   isLoading = signal(false);
   errorMessage = signal('');
 
-  // 🔹 Computed
   totalCategories = computed(() => this.categories().length);
 
-  // ➕ Crear
   async addCategory(): Promise<void> {
     const name = this.newCategoryName().trim();
     if (!this.validateInput(name)) return;
@@ -50,7 +45,6 @@ export class CategoriesFirestoreComponent {
     }
   }
 
-  // ✏️ Editar
   startEdit(category: Category): void {
     this.editingCategory.set(category);
     this.editingName.set(category.name);
@@ -80,7 +74,6 @@ export class CategoriesFirestoreComponent {
     }
   }
 
-  // 🗑️ Eliminar
   async deleteCategory(id?: string): Promise<void> {
     if (!id || !confirm('¿Estás seguro de eliminar esta categoría?')) return;
 
@@ -96,7 +89,6 @@ export class CategoriesFirestoreComponent {
     }
   }
 
-  // 🔍 Validación
   private validateInput(name: string): boolean {
     if (name.trim().length < 3) {
       this.errorMessage.set('El nombre debe tener al menos 3 caracteres');

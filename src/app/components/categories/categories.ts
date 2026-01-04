@@ -16,11 +16,9 @@ import { Category } from '../../models/category';
 export class CategoriesComponent {
   private categoryService = inject(CategoryService);
 
-  // 🔹 Estado con Signals
-  categories = toSignal(
-    this.categoryService.listenCategories(),
-    { initialValue: [] as Category[] }
-  );
+  categories = toSignal(this.categoryService.listenCategories(), {
+    initialValue: [] as Category[],
+  });
 
   newCategoryName = signal('');
   editingCategory = signal<Category | null>(null);
@@ -28,10 +26,8 @@ export class CategoriesComponent {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  // 🔹 Computed
   totalCategories = computed(() => this.categories().length);
 
-  // ➕ Crear categoría
   async addCategory(): Promise<void> {
     const name = this.newCategoryName().trim();
     if (!this.validateInput(name)) return;
@@ -49,7 +45,6 @@ export class CategoriesComponent {
     }
   }
 
-  // ✏️ Editar
   startEdit(category: Category): void {
     this.editingCategory.set(category);
     this.editingName.set(category.name);
@@ -79,7 +74,6 @@ export class CategoriesComponent {
     }
   }
 
-  // 🗑️ Eliminar
   async deleteCategory(id?: string): Promise<void> {
     if (!id || !confirm('¿Estás seguro de eliminar esta categoría?')) return;
 
@@ -95,7 +89,6 @@ export class CategoriesComponent {
     }
   }
 
-  // 🔍 Validación
   private validateInput(name: string): boolean {
     if (!this.categoryService.validateCategoryName(name)) {
       this.errorMessage.set('El nombre debe tener al menos 3 caracteres');
